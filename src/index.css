@@ -1,0 +1,100 @@
+/* Global polish + animations (MUI ThemeProvider + CssBaseline own typography/colors). */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b6b85;
+}
+
+::selection {
+  background: #6366f1;
+  color: white;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
