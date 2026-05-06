@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -15,6 +15,8 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import UploadKnowledgeDialog from './UploadKnowledgeDialog';
 
 function startOfDay(d) {
   const x = new Date(d);
@@ -141,6 +143,7 @@ export default function Sidebar({
   onDeleteSession,
 }) {
   const { today, previous7, earlier } = useMemo(() => groupSessionsByRecency(sessions), [sessions]);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
     <Box
@@ -153,6 +156,7 @@ export default function Sidebar({
       }}
     >
       <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+        <Stack spacing={1}>
         <Button
           id="new-chat-btn"
           fullWidth
@@ -174,6 +178,24 @@ export default function Sidebar({
         >
           New chat
         </Button>
+        <Button
+          fullWidth
+          variant="text"
+          startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 18 }} />}
+          onClick={() => setUploadOpen(true)}
+          sx={{
+            py: 0.75,
+            fontWeight: 500,
+            fontSize: '0.8125rem',
+            color: 'text.secondary',
+            justifyContent: 'flex-start',
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#2a2a2a', color: 'text.primary' },
+          }}
+        >
+          Upload knowledge
+        </Button>
+        </Stack>
       </Box>
 
       <Box sx={{ flex: 1, overflowY: 'auto', py: 0.5 }}>
@@ -204,10 +226,11 @@ export default function Sidebar({
         <Stack direction="row" alignItems="center" spacing={0.75}>
           <InfoOutlinedIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
           <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6875rem' }}>
-            Powered by Qwen + LangChain
+            Powered by Gemma + LangChain
           </Typography>
         </Stack>
       </Box>
+      <UploadKnowledgeDialog open={uploadOpen} onClose={() => setUploadOpen(false)} />
     </Box>
   );
 }

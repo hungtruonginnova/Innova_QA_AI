@@ -121,14 +121,14 @@ export default function MessageBubble({ message }) {
       <AssistantAvatar />
 
       <Box sx={{ minWidth: 0, flex: 1 }}>
-        {message.metadata?.category && message.metadata.category !== 'unknown' && (
+        {message.metadata?.topic && message.metadata.topic !== 'unknown' && (
           <Stack direction="row" alignItems="center" spacing={0.75} flexWrap="wrap" sx={{ mb: 1 }}>
             <Chip
               size="small"
               label={
-                message.metadata.sub_category && message.metadata.sub_category !== 'unknown'
-                  ? `${message.metadata.category} → ${message.metadata.sub_category}`
-                  : message.metadata.category
+                message.metadata.intent && message.metadata.intent !== 'unknown'
+                  ? `${message.metadata.topic} → ${message.metadata.intent}`
+                  : message.metadata.topic
               }
               sx={chipSx}
             />
@@ -136,7 +136,9 @@ export default function MessageBubble({ message }) {
               <Chip
                 size="small"
                 icon={<HelpOutlineOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />}
-                label="Needs more info"
+                label={(message.metadata.missing_fields || []).length > 0
+                  ? `Dang thu thap: ${(message.metadata.missing_fields || [])[0]}`
+                  : 'Needs more info'}
                 sx={{
                   ...chipSx,
                   '& .MuiChip-icon': { color: 'text.secondary' },
