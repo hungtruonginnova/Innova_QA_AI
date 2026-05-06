@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Button,
@@ -11,53 +11,57 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-export default function Sidebar({
-  sessions,
-  activeSessionId,
-  onNewChat,
-  onSelectSession,
-  onDeleteSession,
-}) {
-  return (
-    <Box
-      id="sidebar"
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Button
-          id="new-chat-btn"
-          fullWidth
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={onNewChat}
-          sx={{
-            py: 1.25,
-            fontWeight: 600,
-            fontSize: '0.8125rem',
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)',
-            boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #5558e8 0%, #7c4fe8 50%, #9b7df2 100%)',
-              transform: 'translateY(-1px)',
-              boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
-            },
-          }}
-        >
-          New Chat
-        </Button>
-      </Box>
+function startOfDay(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
 
-      <List sx={{ flex: 1, overflowY: 'auto', py: 0.5, px: 0.5 }}>
+function groupSessionsByRecency(sessions) {
+  const now = new Date();
+  const todayStart = startOfDay(now);
+  const weekStart = new Date(todayStart);
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  const today = [];
+  const previous7 = [];
+  const earlier = [];
+
+  for (const s of sessions) {
+    const created = new Date(s.createdAt);
+    if (created >= todayStart) today.push(s);
+    else if (created >= weekStart) previous7.push(s);
+    else earlier.push(s);
+  }
+
+  return { today, previous7, earlier };
+}
+
+function SessionListSection({ title, sessions, activeSessionId, onSelectSession, onDeleteSession }) {
+  if (sessions.length === 0) return null;
+
+  return (
+    <Box sx={{ mb: 1 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          display: 'block',
+          px: 2,
+          py: 0.75,
+          color: 'text.disabled',
+          fontSize: '0.6875rem',
+          fontWeight: 600,
+          letterSpacing: '0.06em',
+        }}
+      >
+        {title}
+      </Typography>
+      <List disablePadding sx={{ px: 0.5 }}>
         {sessions.map((session) => {
           const isActive = session.id === activeSessionId;
           return (
@@ -70,14 +74,17 @@ export default function Sidebar({
                   edge="end"
                   size="small"
                   aria-label="Delete session"
-                  onClick={() => onDeleteSession(session.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteSession(session.id);
+                  }}
                   sx={{
-                    mr: 0.5,
+                    mr: 0.25,
                     opacity: { xs: 1, sm: 0 },
                     color: 'text.disabled',
                     '&:hover': {
-                      bgcolor: 'rgba(248, 113, 113, 0.1)',
-                      color: 'error.main',
+                      bgcolor: '#2a2a2a',
+                      color: 'text.primary',
                     },
                   }}
                 >
@@ -94,18 +101,18 @@ export default function Sidebar({
                 selected={isActive}
                 onClick={() => onSelectSession(session.id)}
                 sx={{
-                  borderRadius: 1.25,
-                  pr: 6,
+                  borderRadius: 1,
+                  pr: 5,
                   py: 1,
-                  px: 2,
+                  px: 1.5,
+                  '&:hover': { bgcolor: '#2a2a2a' },
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(99, 102, 241, 0.15)',
-                    border: '1px solid rgba(99, 102, 241, 0.2)',
-                    '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.18)' },
+                    bgcolor: '#2a2a2a',
+                    '&:hover': { bgcolor: '#2a2a2a' },
                   },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 36, color: isActive ? 'primary.main' : 'text.disabled' }}>
+                <ListItemIcon sx={{ minWidth: 32, color: isActive ? 'text.primary' : 'text.disabled' }}>
                   <ChatBubbleOutlineOutlinedIcon sx={{ fontSize: 18 }} />
                 </ListItemIcon>
                 <ListItemText
@@ -122,11 +129,81 @@ export default function Sidebar({
           );
         })}
       </List>
+    </Box>
+  );
+}
 
-      <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+export default function Sidebar({
+  sessions,
+  activeSessionId,
+  onNewChat,
+  onSelectSession,
+  onDeleteSession,
+}) {
+  const { today, previous7, earlier } = useMemo(() => groupSessionsByRecency(sessions), [sessions]);
+
+  return (
+    <Box
+      id="sidebar"
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+        <Button
+          id="new-chat-btn"
+          fullWidth
+          variant="outlined"
+          startIcon={<EditOutlinedIcon sx={{ fontSize: 18 }} />}
+          onClick={onNewChat}
+          sx={{
+            py: 1,
+            fontWeight: 500,
+            fontSize: '0.8125rem',
+            color: 'text.primary',
+            borderColor: 'rgba(255,255,255,0.12)',
+            bgcolor: 'transparent',
+            '&:hover': {
+              borderColor: 'rgba(255,255,255,0.12)',
+              bgcolor: '#2a2a2a',
+            },
+          }}
+        >
+          New chat
+        </Button>
+      </Box>
+
+      <Box sx={{ flex: 1, overflowY: 'auto', py: 0.5 }}>
+        <SessionListSection
+          title="Today"
+          sessions={today}
+          activeSessionId={activeSessionId}
+          onSelectSession={onSelectSession}
+          onDeleteSession={onDeleteSession}
+        />
+        <SessionListSection
+          title="Previous 7 days"
+          sessions={previous7}
+          activeSessionId={activeSessionId}
+          onSelectSession={onSelectSession}
+          onDeleteSession={onDeleteSession}
+        />
+        <SessionListSection
+          title="Earlier"
+          sessions={earlier}
+          activeSessionId={activeSessionId}
+          onSelectSession={onSelectSession}
+          onDeleteSession={onDeleteSession}
+        />
+      </Box>
+
+      <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider' }}>
         <Stack direction="row" alignItems="center" spacing={0.75}>
-          <InfoOutlinedIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
-          <Typography variant="caption" color="text.disabled">
+          <InfoOutlinedIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+          <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6875rem' }}>
             Powered by Qwen + LangChain
           </Typography>
         </Stack>

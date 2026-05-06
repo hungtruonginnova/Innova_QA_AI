@@ -1,27 +1,27 @@
 import { createTheme } from '@mui/material/styles';
 
-/** Dark glass + indigo/violet accent (aligned with index.css design tokens). */
+/** ChatGPT-style dark: neutral grays, no glass/blur gradients. */
 export const appTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#6366f1',
-      light: '#8b5cf6',
-      dark: '#4f46e5',
+      main: '#ececec',
+      light: '#f5f5f5',
+      dark: '#d4d4d4',
     },
     secondary: {
-      main: '#a78bfa',
+      main: '#b4b4b4',
     },
     background: {
-      default: '#0a0a0f',
-      paper: 'rgba(30, 30, 50, 0.6)',
+      default: '#212121',
+      paper: '#2f2f2f',
     },
     text: {
-      primary: '#f0f0f5',
-      secondary: '#a0a0b8',
-      disabled: '#6b6b85',
+      primary: '#ececec',
+      secondary: '#b4b4b4',
+      disabled: '#8e8e8e',
     },
-    divider: 'rgba(255, 255, 255, 0.08)',
+    divider: 'rgba(255, 255, 255, 0.1)',
     success: {
       main: '#34d399',
     },
@@ -37,7 +37,7 @@ export const appTheme = createTheme({
     fontSize: 14,
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 12,
   },
   components: {
     MuiCssBaseline: {
@@ -59,9 +59,7 @@ export const appTheme = createTheme({
       styleOverrides: {
         paper: {
           backgroundImage: 'none',
-          backgroundColor: 'rgba(30, 30, 50, 0.85)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backgroundColor: '#171717',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
         },
       },
@@ -70,9 +68,7 @@ export const appTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: 'rgba(30, 30, 50, 0.6)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backgroundColor: '#212121',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         },
       },

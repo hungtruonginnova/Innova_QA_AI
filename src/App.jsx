@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar';
 import ChatWindow from './components/ChatWindow';
 import { useChat } from './hooks/useChat';
 
-const DRAWER_WIDTH = 280;
+const DRAWER_WIDTH = 260;
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,7 +16,6 @@ export default function App() {
     messages,
     isLoading,
     sendMessage,
-    stopStreaming,
     createNewSession,
     deleteSession,
     switchSession,
@@ -95,16 +94,18 @@ export default function App() {
           overflow: 'hidden',
         }}
       >
-        <Header
-          onToggleSidebar={toggleSidebar}
-          isSidebarOpen={sidebarOpen}
-          showMenuButton={isMobile}
-        />
+        {isMobile && (
+          <Header
+            onToggleSidebar={toggleSidebar}
+            isSidebarOpen={sidebarOpen}
+            showMenuButton
+          />
+        )}
         <ChatWindow
           messages={messages}
           isLoading={isLoading}
           onSend={sendMessage}
-          onStop={stopStreaming}
+          onStop={() => {}}
         />
       </Box>
     </Box>

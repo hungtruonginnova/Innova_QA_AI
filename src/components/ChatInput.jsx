@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Paper, TextField, IconButton, Typography } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import StopIcon from '@mui/icons-material/Stop';
 
-const CHAT_MAX_WIDTH = 820;
+const CHAT_MAX_WIDTH = 768;
 
-export default function ChatInput({ onSend, isLoading, onStop }) {
+export default function ChatInput({ onSend, isLoading, onStop, embedded = false }) {
   const [input, setInput] = useState('');
 
   const handleSubmit = (e) => {
@@ -23,39 +23,35 @@ export default function ChatInput({ onSend, isLoading, onStop }) {
     }
   };
 
+  const handleStop = () => {
+    onStop?.();
+  };
+
   return (
     <Box
       sx={{
-        px: { xs: 2, sm: 3 },
+        px: embedded ? 0 : { xs: 2, sm: 3 },
         pt: 0,
-        pb: 2,
+        pb: embedded ? 0 : 2,
+        width: '100%',
       }}
     >
-      <Box
-        component="form"
-        id="chat-input-form"
-        onSubmit={handleSubmit}
-        sx={{ maxWidth: CHAT_MAX_WIDTH, mx: 'auto' }}
-      >
+      <Box component="form" id="chat-input-form" onSubmit={handleSubmit} sx={{ maxWidth: CHAT_MAX_WIDTH, mx: 'auto' }}>
         <Paper
           elevation={0}
           sx={{
             display: 'flex',
             alignItems: 'flex-end',
             gap: 0.5,
-            pl: 2,
-            pr: 0.5,
-            py: 0.5,
-            borderRadius: 2.5,
-            bgcolor: 'rgba(30, 30, 50, 0.6)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid',
-            borderColor: 'divider',
-            transition: 'border-color 150ms, box-shadow 150ms',
+            pl: 2.5,
+            pr: 0.75,
+            py: 1.25,
+            borderRadius: '1.5rem',
+            bgcolor: '#2f2f2f',
+            border: '1px solid rgba(255,255,255,0.1)',
+            transition: 'border-color 150ms ease',
             '&:focus-within': {
-              borderColor: 'primary.main',
-              boxShadow: '0 0 0 2px rgba(99, 102, 241, 0.15)',
+              borderColor: 'rgba(255,255,255,0.3)',
             },
           }}
         >
@@ -66,7 +62,7 @@ export default function ChatInput({ onSend, isLoading, onStop }) {
             maxRows={6}
             fullWidth
             variant="standard"
-            placeholder="Ask about your Innova scan tool..."
+            placeholder="Message SolutionData AI..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -77,7 +73,7 @@ export default function ChatInput({ onSend, isLoading, onStop }) {
                 fontSize: '0.875rem',
                 lineHeight: 1.5,
                 color: 'text.primary',
-                py: 1,
+                py: 0.5,
                 '& textarea::placeholder': {
                   color: 'text.disabled',
                   opacity: 1,
@@ -85,20 +81,19 @@ export default function ChatInput({ onSend, isLoading, onStop }) {
               },
             }}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0, pb: 0.25 }}>
             {isLoading ? (
               <IconButton
                 type="button"
                 id="stop-btn"
                 aria-label="Stop generating"
-                onClick={onStop}
+                onClick={handleStop}
                 sx={{
-                  width: 40,
-                  height: 40,
-                  color: 'common.white',
-                  bgcolor: 'error.main',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                  '&:hover': { bgcolor: '#ef4444' },
+                  width: 36,
+                  height: 36,
+                  color: '#000',
+                  bgcolor: '#ececec',
+                  '&:hover': { bgcolor: '#d4d4d4' },
                 }}
               >
                 <StopIcon sx={{ fontSize: 18 }} />
@@ -109,50 +104,47 @@ export default function ChatInput({ onSend, isLoading, onStop }) {
                 id="send-btn"
                 aria-label="Send message"
                 disabled={!input.trim()}
-                sx={(theme) => ({
-                  width: 40,
-                  height: 40,
+                sx={{
+                  width: 36,
+                  height: 36,
                   ...(input.trim()
                     ? {
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%)',
-                        color: theme.palette.common.white,
-                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
-                        '&:hover': {
-                          transform: 'scale(1.05)',
-                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-                        },
+                        bgcolor: '#ececec',
+                        color: '#000',
+                        '&:hover': { bgcolor: '#d4d4d4' },
                       }
                     : {
-                        bgcolor: 'rgba(30, 30, 50, 0.8)',
-                        color: 'text.disabled',
+                        bgcolor: '#404040',
+                        color: '#8e8e8e',
                       }),
                   '&.Mui-disabled': {
-                    bgcolor: 'rgba(30, 30, 50, 0.8)',
-                    color: 'text.disabled',
-                    backgroundImage: 'none',
+                    bgcolor: '#404040',
+                    color: '#8e8e8e',
                   },
-                })}
+                }}
               >
-                <SendIcon sx={{ fontSize: 18 }} />
+                <ArrowUpwardIcon sx={{ fontSize: 20 }} />
               </IconButton>
             )}
           </Box>
         </Paper>
       </Box>
-      <Typography
-        variant="caption"
-        component="p"
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          textAlign: 'center',
-          mt: 1,
-          color: 'text.disabled',
-          opacity: 0.85,
-        }}
-      >
-        Press <kbd style={{ padding: '1px 5px', borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(30,30,50,0.8)' }}>Enter</kbd> to send,{' '}
-        <kbd style={{ padding: '1px 5px', borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'rgba(30,30,50,0.8)' }}>Shift + Enter</kbd> for new line
-      </Typography>
+      {!embedded && (
+        <Typography
+          variant="caption"
+          component="p"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            textAlign: 'center',
+            mt: 1,
+            color: 'text.disabled',
+            fontSize: '0.6875rem',
+            lineHeight: 1.5,
+          }}
+        >
+          AI can make mistakes. Check important info.
+        </Typography>
+      )}
     </Box>
   );
 }
