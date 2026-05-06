@@ -2,7 +2,6 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Box, Stack, Typography, Chip, Avatar } from '@mui/material';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-import SourceCard from './SourceCard';
 
 const CHAT_MAX_WIDTH = 768;
 
@@ -173,7 +172,6 @@ export default function MessageBubble({ message }) {
           )}
         </Box>
 
-        {!message.isStreaming && message.sources && <SourceCard sources={message.sources} />}
       </Box>
     </Stack>
   );

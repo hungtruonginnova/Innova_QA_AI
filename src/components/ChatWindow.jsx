@@ -7,21 +7,21 @@ import ChatInput from './ChatInput';
 const CHAT_MAX_WIDTH = 768;
 
 const suggestions = [
-  { id: 'suggestion-1', text: 'SDS50 update error', query: 'My SDS50 shows an update error' },
+  { id: 'suggestion-1', text: 'Sign-in password', query: 'What password should I use to sign in?' },
   {
     id: 'suggestion-2',
-    text: 'Connect scan tool to vehicle',
-    query: 'How do I connect the scan tool to my vehicle?',
+    text: 'Reports after reinstall',
+    query: 'If I delete the app and reinstall it, will I lose my reports?',
   },
   {
     id: 'suggestion-3',
-    text: 'VCI connection issue',
-    query: 'VCI not connected message on my 7111',
+    text: 'Create account or sign in',
+    query: 'Do I need to create a new account or just sign in?',
   },
   {
     id: 'suggestion-4',
-    text: 'Package contents',
-    query: "What's included in the SDS50 package?",
+    text: 'Email generated report',
+    query: "How can I email the report after it's generated?",
   },
 ];
 
