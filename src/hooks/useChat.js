@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { sendChatMessage, clearChatHistory } from '../services/api';
+import { sendChatMessageStream, clearChatHistory } from '../services/api';
 
 export function useChat() {
   const [sessions, setSessions] = useState(() => {
@@ -14,6 +14,7 @@ export function useChat() {
   const [activeSessionId, setActiveSessionId] = useState(() => sessions[0]?.id);
   const [messages, setMessages] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [abortController, setAbortController] = useState(null);
 
   const getSessionMessages = useCallback(() => {
     return messages[activeSessionId] || [];
@@ -23,6 +24,15 @@ export function useChat() {
     setMessages((prev) => ({
       ...prev,
       [sessionId]: [...(prev[sessionId] || []), message],
+    }));
+  }, []);
+
+  const updateMessage = useCallback((sessionId, messageId, updater) => {
+    setMessages((prev) => ({
+      ...prev,
+      [sessionId]: (prev[sessionId] || []).map((msg) => (
+        msg.id === messageId ? updater(msg) : msg
+      )),
     }));
   }, []);
 
@@ -51,27 +61,74 @@ export function useChat() {
     );
 
     setIsLoading(true);
+    let assistantId = null;
 
     try {
-      const result = await sendChatMessage(sessionId, text.trim());
+      const controller = new AbortController();
+      setAbortController(controller);
 
-      const assistantMsg = {
-        id: uuidv4(),
+      assistantId = uuidv4();
+      addMessage(sessionId, {
+        id: assistantId,
         role: 'assistant',
-        content: result.message,
+        content: '',
         timestamp: new Date().toISOString(),
-        metadata: {
-          topic: result.topic,
-          intent: result.intent,
-          required_info: result.required_info,
-          missing_fields: result.missing_fields,
-          slots: result.slots,
-        },
-        isFollowUp: (result.missing_fields || []).length > 0,
-        sources: result.sources,
-      };
-      addMessage(sessionId, assistantMsg);
+        metadata: {},
+        sources: [],
+        isStreaming: true,
+      });
+
+      for await (const event of sendChatMessageStream(sessionId, text.trim(), controller.signal)) {
+        if (event.type === 'meta') {
+          updateMessage(sessionId, assistantId, (prev) => ({
+            ...prev,
+            metadata: {
+              topic: event.topic,
+              intent: event.intent,
+              required_info: event.required_info,
+              missing_fields: event.missing_fields,
+              slots: event.slots,
+            },
+            sources: event.sources || [],
+          }));
+          continue;
+        }
+
+        if (event.type === 'delta') {
+          updateMessage(sessionId, assistantId, (prev) => ({
+            ...prev,
+            content: `${prev.content || ''}${event.content || ''}`,
+          }));
+          continue;
+        }
+
+        if (event.type === 'final') {
+          updateMessage(sessionId, assistantId, (prev) => ({
+            ...prev,
+            content: event.message || prev.content,
+            metadata: {
+              topic: event.topic,
+              intent: event.intent,
+              required_info: event.required_info,
+              missing_fields: event.missing_fields,
+              slots: event.slots,
+            },
+            isFollowUp: (event.missing_fields || []).length > 0,
+            sources: event.sources || [],
+            isStreaming: false,
+          }));
+        }
+      }
     } catch (error) {
+      if (error?.name === 'AbortError') {
+        if (assistantId) {
+          updateMessage(sessionId, assistantId, (prev) => ({
+            ...prev,
+            isStreaming: false,
+          }));
+        }
+        return;
+      }
       const errMsg = {
         id: uuidv4(),
         role: 'assistant',
@@ -81,9 +138,10 @@ export function useChat() {
       };
       addMessage(sessionId, errMsg);
     } finally {
+      setAbortController(null);
       setIsLoading(false);
     }
-  }, [activeSessionId, isLoading, addMessage]);
+  }, [activeSessionId, isLoading, addMessage, updateMessage]);
 
   const createNewSession = useCallback(() => {
     const id = uuidv4();
@@ -124,12 +182,17 @@ export function useChat() {
     setActiveSessionId(sessionId);
   }, [isLoading]);
 
+  const stopStreaming = useCallback(() => {
+    abortController?.abort();
+  }, [abortController]);
+
   return {
     sessions,
     activeSessionId,
     messages: getSessionMessages(),
     isLoading,
     sendMessage,
+    stopStreaming,
     createNewSession,
     deleteSession,
     switchSession,

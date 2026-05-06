@@ -5,15 +5,17 @@
 const API_BASE = '/api';
 
 /**
- * Send a chat message and receive a complete JSON response.
+ * Send a chat message and stream NDJSON events.
  * @param {string} sessionId - Session identifier
  * @param {string} message - User's message
+ * @param {AbortSignal} signal - Optional abort signal
  */
-export async function sendChatMessage(sessionId, message) {
+export async function* sendChatMessageStream(sessionId, message, signal) {
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ session_id: sessionId, message }),
+    signal,
   });
 
   if (!response.ok) {
@@ -21,7 +23,35 @@ export async function sendChatMessage(sessionId, message) {
     throw new Error(`HTTP ${response.status}: ${err}`);
   }
 
-  return response.json();
+  if (!response.body) {
+    throw new Error('Streaming not supported by browser');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    let newlineIdx = buffer.indexOf('\n');
+
+    while (newlineIdx >= 0) {
+      const rawLine = buffer.slice(0, newlineIdx).trim();
+      buffer = buffer.slice(newlineIdx + 1);
+      if (rawLine) {
+        yield JSON.parse(rawLine);
+      }
+      newlineIdx = buffer.indexOf('\n');
+    }
+  }
+
+  const finalLine = buffer.trim();
+  if (finalLine) {
+    yield JSON.parse(finalLine);
+  }
 }
 
 export async function getChatHistory(sessionId) {

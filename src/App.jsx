@@ -16,6 +16,7 @@ export default function App() {
     messages,
     isLoading,
     sendMessage,
+    stopStreaming,
     createNewSession,
     deleteSession,
     switchSession,
@@ -105,7 +106,7 @@ export default function App() {
           messages={messages}
           isLoading={isLoading}
           onSend={sendMessage}
-          onStop={() => {}}
+          onStop={stopStreaming}
         />
       </Box>
     </Box>

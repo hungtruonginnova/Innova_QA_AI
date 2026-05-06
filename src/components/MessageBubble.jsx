@@ -136,7 +136,7 @@ export default function MessageBubble({ message }) {
                 size="small"
                 icon={<HelpOutlineOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />}
                 label={(message.metadata.missing_fields || []).length > 0
-                  ? `Dang thu thap: ${(message.metadata.missing_fields || [])[0]}`
+                  ? `Needs more info: ${(message.metadata.missing_fields || [])[0]}`
                   : 'Needs more info'}
                 sx={{
                   ...chipSx,
@@ -156,7 +156,7 @@ export default function MessageBubble({ message }) {
             }),
           }}
         >
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <ReactMarkdown>{message.content || ''}</ReactMarkdown>
           {message.isStreaming && (
             <Box
               component="span"
