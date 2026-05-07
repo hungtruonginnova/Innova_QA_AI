@@ -131,19 +131,6 @@ export default function MessageBubble({ message }) {
               }
               sx={chipSx}
             />
-            {message.metadata.missing_fields?.length > 0 && (
-              <Chip
-                size="small"
-                icon={<HelpOutlineOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />}
-                label={(message.metadata.missing_fields || []).length > 0
-                  ? `Dang thu thap: ${(message.metadata.missing_fields || [])[0]}`
-                  : 'Needs more info'}
-                sx={{
-                  ...chipSx,
-                  '& .MuiChip-icon': { color: 'text.secondary' },
-                }}
-              />
-            )}
           </Stack>
         )}
 

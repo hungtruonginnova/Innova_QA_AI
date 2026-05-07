@@ -63,11 +63,8 @@ export function useChat() {
         metadata: {
           topic: result.topic,
           intent: result.intent,
-          required_info: result.required_info,
-          missing_fields: result.missing_fields,
           slots: result.slots,
         },
-        isFollowUp: (result.missing_fields || []).length > 0,
         sources: result.sources,
       };
       addMessage(sessionId, assistantMsg);
